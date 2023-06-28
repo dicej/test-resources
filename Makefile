@@ -10,6 +10,7 @@ build/module.wasm: foo.c foo-impl.c foo.h
 	$(WASI_SDK)/bin/clang -Wall -Wextra -Werror foo.c foo-impl.c -o $@
 
 build/wasi_snapshot_preview1.reactor.wasm:
+	@mkdir -p "$(@D)"
 	curl -L "https://github.com/bytecodealliance/wasmtime/releases/download/v10.0.1/wasi_snapshot_preview1.reactor.wasm" -o $@
 
 .PHONY: clean
