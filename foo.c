@@ -103,3 +103,8 @@ int32_t __wasm_export_exports_x_add(int32_t handle, double arg0) {
     exports_x_owned_t x = { .__handle = handle };
     return exports_x_add(x, arg0).__handle;
 }
+
+__attribute__((__export_name__("exports#[dtor]x")))
+void __wasm_export_exports_x_dtor(exports_x_t* x) {
+    exports_x_dtor(x);
+}

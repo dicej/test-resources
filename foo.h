@@ -40,5 +40,6 @@ exports_x_owned_t exports_x_constructor(double a);
 double exports_x_get_a(exports_x_t *x);
 void exports_x_set_a(exports_x_t *x, double a);
 exports_x_owned_t exports_x_add(exports_x_owned_t x, double a);
+void exports_x_dtor(exports_x_t* x);
 
 #endif

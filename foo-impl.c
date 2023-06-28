@@ -44,6 +44,9 @@ void exports_x_set_a(exports_x_t *x, double a) {
 }
 
 exports_x_owned_t exports_x_add(exports_x_owned_t other, double a) {
+    // Note: normally we'd edit `other` in-place and return it, but I'm
+    // deliberately doing this the inefficient way to exercise
+    // `exports_x_drop_owned`.
     exports_x_owned_t result = exports_x_constructor(a + exports_x_owned_rep(other)->a);
     exports_x_drop_owned(other);
     return result;
@@ -51,4 +54,8 @@ exports_x_owned_t exports_x_add(exports_x_owned_t other, double a) {
 
 int main(void) {
     return 0;
+}
+
+void exports_x_dtor(exports_x_t* x) {
+    free(x);
 }
