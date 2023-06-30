@@ -218,6 +218,13 @@ pub mod exports {
     pub mod exports {
         use super::super::MyX as RepX;
 
+        pub(in super::super) trait TraitX: Sized {
+            fn new(a: f64) -> Self;
+            fn get_a(&self) -> f64;
+            fn set_a(&self, a: f64);
+            fn add(x: X, a: f64) -> X;
+        }
+
         pub(in super::super) struct X {
             handle: i32,
         }
@@ -304,7 +311,11 @@ pub mod exports {
 
 // (end of "generated" bindings)
 
-use {exports::exports::X, imports::Y, std::cell::RefCell};
+use {
+    exports::exports::{TraitX, X},
+    imports::Y,
+    std::cell::RefCell,
+};
 
 struct MyResources;
 
@@ -329,7 +340,7 @@ export_resources!(MyResources);
 
 struct MyX(RefCell<f64>);
 
-impl MyX {
+impl TraitX for MyX {
     fn new(a: f64) -> Self {
         Self(RefCell::new(a))
     }
