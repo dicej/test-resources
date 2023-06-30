@@ -1,13 +1,12 @@
-WASI_SDK ?= /opt/wasi-sdk
-
-build/component.wasm: build/module.wasm foo.wit build/wasi_snapshot_preview1.reactor.wasm
+build/component.wasm: build/module.wasm resources.wit build/wasi_snapshot_preview1.reactor.wasm
 	@mkdir -p "$(@D)"
-	wasm-tools component embed foo.wit build/module.wasm -o build/module-with-type.wasm
+	wasm-tools component embed resources.wit build/module.wasm -o build/module-with-type.wasm
 	wasm-tools component new --adapt build/wasi_snapshot_preview1.reactor.wasm build/module-with-type.wasm -o $@
 
-build/module.wasm: foo.c foo-impl.c foo.h
+build/module.wasm: src/lib.rs Cargo.toml
 	@mkdir -p "$(@D)"
-	$(WASI_SDK)/bin/clang -Wall -Wextra -Werror foo.c foo-impl.c -o $@
+	cargo build --release --target wasm32-wasi
+	cp target/wasm32-wasi/release/test_resources.wasm $@
 
 build/wasi_snapshot_preview1.reactor.wasm:
 	@mkdir -p "$(@D)"
@@ -15,4 +14,5 @@ build/wasi_snapshot_preview1.reactor.wasm:
 
 .PHONY: clean
 clean:
+	cargo clean
 	rm -rf build

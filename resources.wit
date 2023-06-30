@@ -1,5 +1,19 @@
-package test:test
-world foo {
+package my:resources
+
+interface types {
+  resource z {
+    constructor(a: float64)
+    get-a: func() -> float64
+  }
+}
+
+world resources {
+  use types.{z}
+
+  export add: func(a: borrow<z>, b: borrow<z>) -> own<z>
+
+  export test: func()
+
   export exports: interface {
     resource x {
       constructor(a: float64)
@@ -17,6 +31,4 @@ world foo {
       static add: func(y: y, a: float64) -> y
     }
   }
-
-  export test: func()
 }
