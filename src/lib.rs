@@ -1,8 +1,9 @@
 // start of "generated" bindings, i.e. hypothetical output of:
 // wit_bindgen::generate!({
 //     path: "resources.wit",
+//     world_exports: MyResources,
 //     exported_resources: {
-//         "x": MyX
+//         "exports::x": MyX
 //     }
 // });
 
@@ -13,38 +14,21 @@ pub trait Resources {
     fn test();
 }
 
-#[doc(hidden)]
-pub unsafe fn call_add<T: Resources>(arg0: i32, arg1: i32) -> i32 {
-    T::add(&Z::from_handle(arg0, false), &Z::from_handle(arg1, false)).into_handle()
-}
+const _: () = {
+    #[doc(hidden)]
+    #[export_name = "add"]
+    #[allow(non_snake_case)]
+    unsafe extern "C" fn __export_add(arg0: i32, arg1: i32) -> i32 {
+        MyResources::add(&Z::from_handle(arg0, false), &Z::from_handle(arg1, false)).into_handle()
+    }
 
-#[doc(hidden)]
-pub unsafe fn call_test<T: Resources>() {
-    T::test();
-}
-
-macro_rules! export_resources(($t:ident) => {
-    const _: () = {
-      #[doc(hidden)]
-      #[export_name = "add"]
-      #[allow(non_snake_case)]
-      unsafe extern "C" fn __export_add(arg0: i32,arg1: i32,) -> i32 {
-        call_add::<$t>(arg0,arg1,)
-      }
-
-    };
-
-    const _: () = {
-      #[doc(hidden)]
-      #[export_name = "test"]
-      #[allow(non_snake_case)]
-      unsafe extern "C" fn __export_test() {
-        call_test::<$t>()
-      }
-
-    };
-
-});
+    #[doc(hidden)]
+    #[export_name = "test"]
+    #[allow(non_snake_case)]
+    unsafe extern "C" fn __export_test() {
+        MyResources::test();
+    }
+};
 
 #[allow(clippy::all)]
 pub mod imports {
@@ -218,24 +202,24 @@ pub mod exports {
     pub mod exports {
         use super::super::MyX as RepX;
 
-        pub(in super::super) trait TraitX: Sized {
+        pub(in super::super) trait X: Sized {
             fn new(a: f64) -> Self;
             fn get_a(&self) -> f64;
             fn set_a(&self, a: f64);
-            fn add(x: X, a: f64) -> X;
+            fn add(x: OwnX, a: f64) -> OwnX;
         }
 
-        pub(in super::super) struct X {
+        pub(in super::super) struct OwnX {
             handle: i32,
         }
 
-        impl X {
+        impl OwnX {
             #[doc(hidden)]
             pub fn into_handle(self) -> i32 {
                 std::mem::ManuallyDrop::new(self).handle
             }
 
-            pub fn new(x: RepX) -> X {
+            pub fn new(x: RepX) -> OwnX {
                 unsafe {
                     #[link(wasm_import_module = "[export]exports")]
                     extern "C" {
@@ -243,7 +227,7 @@ pub mod exports {
                         fn wit_import(_: i32) -> i32;
                     }
 
-                    X {
+                    OwnX {
                         handle: wit_import(
                             std::mem::transmute::<*mut RepX, isize>(Box::into_raw(Box::new(x)))
                                 .try_into()
@@ -254,7 +238,7 @@ pub mod exports {
             }
         }
 
-        impl std::ops::Deref for X {
+        impl std::ops::Deref for OwnX {
             type Target = RepX;
 
             fn deref(&self) -> &RepX {
@@ -270,49 +254,51 @@ pub mod exports {
             }
         }
 
-        #[doc(hidden)]
-        #[export_name = "exports#[constructor]x"]
-        #[allow(non_snake_case)]
-        unsafe extern "C" fn __export_x_constructor(arg0: f64) -> i32 {
-            X::new(RepX::new(arg0)).into_handle()
-        }
+        const _: () = {
+            #[doc(hidden)]
+            #[export_name = "exports#[constructor]x"]
+            #[allow(non_snake_case)]
+            unsafe extern "C" fn __export_x_constructor(arg0: f64) -> i32 {
+                OwnX::new(RepX::new(arg0)).into_handle()
+            }
 
-        #[doc(hidden)]
-        #[export_name = "exports#[method]x.get-a"]
-        #[allow(non_snake_case)]
-        unsafe extern "C" fn __export_x_get_a(arg0: i32) -> f64 {
-            std::mem::transmute::<isize, &X>(arg0.try_into().unwrap()).get_a()
-        }
+            #[doc(hidden)]
+            #[export_name = "exports#[method]x.get-a"]
+            #[allow(non_snake_case)]
+            unsafe extern "C" fn __export_x_get_a(arg0: i32) -> f64 {
+                std::mem::transmute::<isize, &RepX>(arg0.try_into().unwrap()).get_a()
+            }
 
-        #[doc(hidden)]
-        #[export_name = "exports#[method]x.set-a"]
-        #[allow(non_snake_case)]
-        unsafe extern "C" fn __export_x_set_a(arg0: i32, arg1: f64) {
-            std::mem::transmute::<isize, &X>(arg0.try_into().unwrap()).set_a(arg1)
-        }
+            #[doc(hidden)]
+            #[export_name = "exports#[method]x.set-a"]
+            #[allow(non_snake_case)]
+            unsafe extern "C" fn __export_x_set_a(arg0: i32, arg1: f64) {
+                std::mem::transmute::<isize, &RepX>(arg0.try_into().unwrap()).set_a(arg1)
+            }
 
-        #[doc(hidden)]
-        #[export_name = "exports#[static]x.add"]
-        #[allow(non_snake_case)]
-        unsafe extern "C" fn __export_x_add(arg0: i32, arg1: f64) -> i32 {
-            RepX::add(X { handle: arg0 }, arg1).into_handle()
-        }
+            #[doc(hidden)]
+            #[export_name = "exports#[static]x.add"]
+            #[allow(non_snake_case)]
+            unsafe extern "C" fn __export_x_add(arg0: i32, arg1: f64) -> i32 {
+                RepX::add(OwnX { handle: arg0 }, arg1).into_handle()
+            }
 
-        #[doc(hidden)]
-        #[export_name = "exports#[dtor]x"]
-        #[allow(non_snake_case)]
-        unsafe extern "C" fn __export_x_dtor(arg0: i32) {
-            drop(Box::from_raw(std::mem::transmute::<isize, *mut RepX>(
-                arg0.try_into().unwrap(),
-            )))
-        }
+            #[doc(hidden)]
+            #[export_name = "exports#[dtor]x"]
+            #[allow(non_snake_case)]
+            unsafe extern "C" fn __export_x_dtor(arg0: i32) {
+                drop(Box::from_raw(std::mem::transmute::<isize, *mut RepX>(
+                    arg0.try_into().unwrap(),
+                )))
+            }
+        };
     }
 }
 
 // (end of "generated" bindings)
 
 use {
-    exports::exports::{TraitX, X},
+    exports::exports::{OwnX, X},
     imports::Y,
     std::cell::RefCell,
 };
@@ -336,11 +322,9 @@ impl Resources for MyResources {
     }
 }
 
-export_resources!(MyResources);
-
 struct MyX(RefCell<f64>);
 
-impl TraitX for MyX {
+impl X for MyX {
     fn new(a: f64) -> Self {
         Self(RefCell::new(a))
     }
@@ -353,7 +337,7 @@ impl TraitX for MyX {
         *self.0.borrow_mut() = a;
     }
 
-    fn add(x: X, a: f64) -> X {
+    fn add(x: OwnX, a: f64) -> OwnX {
         x.set_a(a + x.get_a());
         x
     }
