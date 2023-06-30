@@ -218,7 +218,7 @@ pub mod exports {
     pub mod exports {
         use super::super::MyX as RepX;
 
-        pub(crate) struct X {
+        pub(in super::super) struct X {
             handle: i32,
         }
 
