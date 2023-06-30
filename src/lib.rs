@@ -9,11 +9,7 @@ pub trait Resources {
 
 #[doc(hidden)]
 pub unsafe fn call_add<T: Resources>(arg0: i32, arg1: i32) -> i32 {
-    std::mem::ManuallyDrop::new(T::add(
-        &Z::from_handle(arg0, false),
-        &Z::from_handle(arg1, false),
-    ))
-    .handle()
+    T::add(&Z::from_handle(arg0, false), &Z::from_handle(arg1, false)).into_handle()
 }
 
 #[doc(hidden)]
@@ -104,6 +100,11 @@ pub mod imports {
     }
 
     impl Y {
+        #[doc(hidden)]
+        pub fn into_handle(self) -> i32 {
+            std::mem::ManuallyDrop::new(self).handle
+        }
+
         pub fn new(a: f64) -> Y {
             unsafe {
                 #[link(wasm_import_module = "imports")]
@@ -152,7 +153,7 @@ pub mod imports {
                 }
 
                 Y {
-                    handle: wit_import(std::mem::ManuallyDrop::new(y).handle, a),
+                    handle: wit_import(y.into_handle(), a),
                     owned: true,
                 }
             }
@@ -199,8 +200,8 @@ mod my {
                 }
 
                 #[doc(hidden)]
-                pub fn handle(&self) -> i32 {
-                    self.handle
+                pub fn into_handle(self) -> i32 {
+                    std::mem::ManuallyDrop::new(self).handle
                 }
 
                 pub fn new(a: f64) -> Z {
@@ -274,6 +275,11 @@ pub mod exports {
         }
 
         impl<T: X> OwnX<T> {
+            #[doc(hidden)]
+            pub fn into_handle(self) -> i32 {
+                std::mem::ManuallyDrop::new(self).handle
+            }
+
             pub fn new(x: T) -> OwnX<T> {
                 unsafe {
                     #[link(wasm_import_module = "[export]exports")]
@@ -312,7 +318,7 @@ pub mod exports {
 
         #[doc(hidden)]
         pub unsafe fn call_x_constructor<T: X>(arg0: f64) -> i32 {
-            std::mem::ManuallyDrop::new(OwnX::new(T::new(arg0))).handle
+            OwnX::new(T::new(arg0)).into_handle()
         }
 
         #[doc(hidden)]
@@ -327,14 +333,14 @@ pub mod exports {
 
         #[doc(hidden)]
         pub unsafe fn call_x_add<T: X>(arg0: i32, arg1: f64) -> i32 {
-            std::mem::ManuallyDrop::new(T::add(
+            T::add(
                 OwnX::<T> {
                     handle: arg0,
                     _phantom: std::marker::PhantomData,
                 },
                 arg1,
-            ))
-            .handle
+            )
+            .into_handle()
         }
     }
 }
