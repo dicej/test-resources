@@ -19,14 +19,15 @@ const _: () = {
     #[export_name = "add"]
     #[allow(non_snake_case)]
     unsafe extern "C" fn __export_add(arg0: i32, arg1: i32) -> i32 {
-        MyResources::add(&Z::from_handle(arg0, false), &Z::from_handle(arg1, false)).into_handle()
+        <MyResources as Resources>::add(&Z::from_handle(arg0, false), &Z::from_handle(arg1, false))
+            .into_handle()
     }
 
     #[doc(hidden)]
     #[export_name = "test"]
     #[allow(non_snake_case)]
     unsafe extern "C" fn __export_test() {
-        MyResources::test();
+        <MyResources as Resources>::test();
     }
 };
 
@@ -266,21 +267,26 @@ pub mod exports {
             #[export_name = "exports#[method]x.get-a"]
             #[allow(non_snake_case)]
             unsafe extern "C" fn __export_x_get_a(arg0: i32) -> f64 {
-                std::mem::transmute::<isize, &RepX>(arg0.try_into().unwrap()).get_a()
+                <RepX as X>::get_a(std::mem::transmute::<isize, &RepX>(
+                    arg0.try_into().unwrap(),
+                ))
             }
 
             #[doc(hidden)]
             #[export_name = "exports#[method]x.set-a"]
             #[allow(non_snake_case)]
             unsafe extern "C" fn __export_x_set_a(arg0: i32, arg1: f64) {
-                std::mem::transmute::<isize, &RepX>(arg0.try_into().unwrap()).set_a(arg1)
+                <RepX as X>::set_a(
+                    std::mem::transmute::<isize, &RepX>(arg0.try_into().unwrap()),
+                    arg1,
+                )
             }
 
             #[doc(hidden)]
             #[export_name = "exports#[static]x.add"]
             #[allow(non_snake_case)]
             unsafe extern "C" fn __export_x_add(arg0: i32, arg1: f64) -> i32 {
-                RepX::add(OwnX { handle: arg0 }, arg1).into_handle()
+                <RepX as X>::add(OwnX { handle: arg0 }, arg1).into_handle()
             }
 
             #[doc(hidden)]
