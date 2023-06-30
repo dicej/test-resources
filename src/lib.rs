@@ -2,7 +2,7 @@
 // wit_bindgen::generate!({
 //     path: "resources.wit",
 //     world_exports: MyResources,
-//     exported_resources: {
+//     resource_exports: {
 //         "exports::x": MyX
 //     }
 // });
